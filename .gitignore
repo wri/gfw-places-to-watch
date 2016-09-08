@@ -1,0 +1,18 @@
+*.pyc
+
+#pycharm
+.idea/
+.out
+
+tile_list/
+tiles/output/**
+data/glad
+data/terrai
+data/gadm2
+
+# any wayward tsv files
+*.tsv
+*.csv
+
+# any temporary qc databases
+*.db
