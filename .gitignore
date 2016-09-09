@@ -6,9 +6,10 @@
 
 tile_list/
 tiles/output/**
-data/glad
-data/terrai
-data/gadm2
+data/asia
+data/africa
+data/south_america
+data/emissions
 
 # any wayward tsv files
 *.tsv

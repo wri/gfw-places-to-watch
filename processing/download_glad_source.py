@@ -2,6 +2,7 @@ import os
 import shutil
 import requests
 import subprocess
+import logging
 
 import utilities.file_utilities as file_util
 
@@ -13,9 +14,9 @@ download_dict = {
                 }
 
 test_extent_dict = {
-                    'south_america': [-8.8, -74.5, -6.9, -72.7],
-                    'africa': [1.4, 16.3, 1.5, 16.4],
-                    'asia': [-1.1, 116.5, -0.9, 116.7]
+                    'south_america': ['-74.5', '-6.9', '-72.7', '-8.8'],
+                    'africa': ['16.3', '1.5', '16.4', '1.4'],
+                    'asia': ['116.5', '-0.9', '116.7', '-1.1']
                     }
 
 
@@ -29,7 +30,8 @@ def download_glad(region, data_dir, is_test):
         src_file = build_vrt(download_dict[region], data_dir)
 
     else:
-        src_file = os.path.join(data_dir, region + '.tif')
+        src_name = download_dict[region][0]
+        src_file = os.path.join(data_dir, src_name + '.tif')
 
     final_source = os.path.join(data_dir, 'source.tif')
 
@@ -45,15 +47,14 @@ def download_glad(region, data_dir, is_test):
 
 def build_vrt(ras_name_list, data_dir):
 
-    vrt_cmd = ['gdalbuildvrt']
+    output_vrt = os.path.join(data_dir, 'output.vrt')
+    vrt_cmd = ['gdalbuildvrt', output_vrt]
+
 
     for ras_name in ras_name_list:
         src_path = os.path.join(data_dir, ras_name + '.tif')
 
         vrt_cmd.append(src_path)
-
-    output_vrt = os.path.join(data_dir, 'output.vrt')
-    vrt_cmd.append(output_vrt)
 
     subprocess.check_call(vrt_cmd)
 
@@ -61,6 +62,8 @@ def build_vrt(ras_name_list, data_dir):
 
 
 def vrt_to_tif(vrt_file, output_tif):
+
+    logging.debug('Writing vrt to tif')
 
     cmd = ['gdal_translate', '-co', 'COMPRESS=LZW', '--config', 'GDAL_CACHEMAX', file_util.get_mem_pct()]
     cmd += [vrt_file, output_tif]
