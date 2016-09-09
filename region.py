@@ -1,15 +1,16 @@
 import os
 import logging
 
-from processing import raster_math, build_conversion_jobs
+from processing import raster_math, build_conversion_jobs, download_glad_source
 
 
 class Region(object):
 
-    def __init__(self, region_name, source_dir, q):
+    def __init__(self, region_name, source_dir, is_test, q):
 
         self.name = region_name
         self.source_dir = source_dir
+        self.is_test = is_test
         self.q = q
 
         logging.debug('Starting region {0}'.format(self.name))
@@ -17,6 +18,11 @@ class Region(object):
         self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         self.script_dir = os.path.join(self.root_dir, 'processing', 'utilities')
         self.data_dir = os.path.join(self.root_dir, 'data', self.name)
+
+    def download_source(self):
+
+        print 'Downloading glad from source'
+        download_glad_source.download_glad(self.name, self.data_dir)
 
     def prep_raster_data(self):
         print 'Starting to prep glad data'

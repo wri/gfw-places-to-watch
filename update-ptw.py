@@ -33,7 +33,7 @@ def main():
     q = Queue()
 
     for r in region_list:
-        region = Region(r, args.source_dir, q)
+        region = Region(r, args.source_dir, args.is_test, q)
 
         region.prep_raster_data()
 
