@@ -33,7 +33,7 @@ def main():
 
         region.prep_raster_data()
 
-        # region.emissions_to_point()
+        region.emissions_to_point()
         #
         # region.classify_point_data_by_grid_cell()
         #
