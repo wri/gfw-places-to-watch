@@ -44,6 +44,8 @@ def download_glad(region, data_dir, is_test):
     else:
         shutil.move(src_file, final_source)
 
+    file_util.write_marker_txt_file(final_source)
+
 
 def build_vrt(ras_name_list, data_dir):
 

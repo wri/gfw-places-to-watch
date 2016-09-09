@@ -8,7 +8,7 @@ from processing.job import process_queue
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Split an input raster into tiles, write to TSV/WKT')
+    parser = argparse.ArgumentParser(description='Download glad, find last 30 days, tabulate score by PWT grid')
     parser.add_argument('--region', '-r', required=True, choices=['south_america', 'africa', 'asia', 'all'],
                         help='the region to process')
     parser.add_argument('--threads', '-n', help='the number of threads', default=multiprocessing.cpu_count(), type=int)
@@ -33,11 +33,11 @@ def main():
 
         region.prep_raster_data()
 
-        region.emissions_to_point()
-
-        region.classify_point_data_by_grid_cell()
-
-        region.tabulate_results()
+        # region.emissions_to_point()
+        #
+        # region.classify_point_data_by_grid_cell()
+        #
+        # region.tabulate_results()
 
     process_queue(args.threads, q, args.debug)
 

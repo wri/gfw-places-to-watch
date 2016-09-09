@@ -84,11 +84,13 @@ class Job(object):
         print '{0}: Starting {1}. Output: {2}'.format(worker_id, msg_exec, os.path.basename(self.output))
 
         # To execute on windows
-        if os.name == 'nt':
-            subprocess.check_call(cmd, shell=True)
+        # if os.name == 'nt':
+        #     subprocess.check_call(cmd, shell=True)
+        #
+        # else:
+        #     subprocess.check_call(cmd)
 
-        else:
-            subprocess.check_call(cmd)
+        subprocess.check_call(cmd)
 
         # Leave a .txt file in the folder. This will signal to other workers that this
         # output raster is complete, and can be used as an input to other processes
