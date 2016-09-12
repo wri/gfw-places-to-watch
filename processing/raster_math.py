@@ -33,7 +33,7 @@ def create_30_days_mask(region_name, data_dir, q):
 
     j.arguments += ['-A', input_raster, "--co=COMPRESS=LZW", '--outfile={0}'.format(output_30days_ras)]
     j.arguments += ['--calc=0*(A<{0})'.format(days_30_ago), '--calc=1*(A>={0})'.format(days_30_ago)]
-    j.arguments += ['--type=Float32']
+    j.arguments += ['--type=Float32', '--NoDataValue=0']
 
     q.put(j)
 
