@@ -1,9 +1,10 @@
 import argparse
+import os
 import multiprocessing
 from Queue import Queue
 
+from processing import job, calculate_grid_score
 from region import Region
-from processing.job import process_queue
 
 
 def main():
@@ -15,6 +16,8 @@ def main():
     parser.add_argument('--debug', dest='debug', action='store_true')
     parser.add_argument('--test', dest='test', action='store_true')
     args = parser.parse_args()
+
+    root_dir = os.path.dirname(__file__)
 
     if args.test:
         args.threads = 1
@@ -34,12 +37,10 @@ def main():
         region.prep_raster_data()
 
         region.emissions_to_point()
-        #
-        # region.classify_point_data_by_grid_cell()
-        #
-        # region.tabulate_results()
 
-    process_queue(args.threads, q, args.debug)
+    job.process_queue(args.threads, q, args.debug)
+
+    api_json = calculate_grid_score.summarize(root_dir, region_list, args.threads)
 
     # TODO add something to push results to API
 
