@@ -34,10 +34,10 @@ class Region(object):
         print 'Starting to prep glad data'
 
         tile_grid_shp = os.path.join(self.root_dir, 'data', 'grid', 'footprint_5degrees.shp')
-        tile_dict = tile_raster.build_projwin_jobs(self.source, self.data_dir, tile_grid_shp, self.is_test, self.q)
+        self.tile_dict = tile_raster.build_projwin_jobs(self.source, self.data_dir, tile_grid_shp, self.is_test, self.q)
 
-        raster_math.create_30_days_mask(tile_dict, self.data_dir, self.q)
+        raster_math.create_30_days_mask(self.tile_dict, self.data_dir, self.q)
 
     def emissions_to_point(self):
         print 'Converting output raster to points'
-        build_conversion_jobs.convert(self.data_dir, self.script_dir, self.q)
+        build_conversion_jobs.convert(self.tile_dict, self.data_dir, self.script_dir, self.q)

@@ -12,9 +12,10 @@ data/south_america
 data/emissions
 data/temp
 
-# any wayward tsv files
+# any wayward data files
 *.tsv
 *.csv
+*.json
 
 # any temporary qc databases
 *.db

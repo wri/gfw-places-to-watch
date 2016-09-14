@@ -6,7 +6,8 @@ import operator
 import glob
 from osgeo import osr, ogr
 
-from processing.utilities import multiprocessing_mapreduce
+#from processing.utilities import multiprocessing_mapreduce
+import multiprocessing_mapreduce
 
 
 def snap_alerts_to_grid(input_csv):
@@ -17,22 +18,23 @@ def snap_alerts_to_grid(input_csv):
     output = []
 
     with open(input_csv, 'r') as f:
-        csv_reader = csv.reader(f)
+        # Could be CSV (windows) or TSV (linux)
+        # Source: http://stackoverflow.com/questions/16312104
+        dialect = csv.Sniffer().sniff(f.read(1024), delimiters=",\t")
+        f.seek(0)
 
-        # Skip header
-        csv_reader.next()
+        csv_reader = csv.reader(f, dialect)
 
         for row in csv_reader:
             lat_val = float(row[1])
             lon_val = float(row[0])
-            emiss_val = float(row[3])
+            emiss_val = float(row[2])
 
             eck_y, eck_x = wgs84_to_eckert_vi(lat_val, lon_val)
 
             snap_y = round((eck_y - 5000 + 144.58445) / 10000) * 10000 - 144.58445
             snap_x = round((eck_x - 5000 + 3593.06028) / 10000) * 10000 - 3593.06028
 
-            # output.append(((snap_y, snap_x), (1, emiss_val)))
             output.append(((snap_y, snap_x), (1, emiss_val)))
 
     return output
@@ -76,7 +78,7 @@ def count_alerts_by_grid(root_dir, region_list, threads):
     input_files = []
 
     for r in region_list:
-        region_dir = os.path.join(root_dir, 'data', r)
+        region_dir = os.path.join(root_dir, 'data', r, 'emissions_30days_point')
         csv_files = glob.glob(region_dir + '/*.csv')
 
         input_files.extend(csv_files)
@@ -93,3 +95,6 @@ def count_alerts_by_grid(root_dir, region_list, threads):
 
     return output_dict
 
+
+if __name__ == '__main__':
+    count_alerts_by_grid(r'/home/ubuntu/gfw-places-to-watch', ['south_america'], 2)

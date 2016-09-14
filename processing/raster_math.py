@@ -81,7 +81,7 @@ def extract_emissions_30days(tile_id, glad30days_dir, emissions_clip_dir, emissi
     tif_filename = '{0}.tif'.format(tile_id)
 
     glad30days = os.path.join(glad30days_dir, tif_filename)
-    emissions_clip = os.path.join(glad30days_dir, tif_filename)
+    emissions_clip = os.path.join(emissions_clip_dir, tif_filename)
     emissions_30days = os.path.join(emissions_30days_dir, tif_filename)
 
     j.arguments += ['-A', glad30days, '-B', emissions_clip, '--outfile={0}'.format(emissions_30days)]

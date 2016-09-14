@@ -27,7 +27,7 @@ def get_ptw_grid_attributes(root_dir):
 
     grid_dict = {}
 
-    grid_fc = os.path.join(root_dir, 'data', 'grid', 'grid.shp')
+    grid_fc = os.path.join(root_dir, 'data', 'grid', 'ptw_grid.shp')
 
     with fiona.open(grid_fc, 'r') as the_grid:
         for feature in the_grid:

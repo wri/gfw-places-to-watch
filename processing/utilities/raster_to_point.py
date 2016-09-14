@@ -24,7 +24,7 @@ def main():
         print 'Raster {0} has no valid pixels'.format(os.path.basename(args.input_ras))
 
         # Create csv placeholder but don't write anything to it
-        open(args.output_csv, 'w+')
+        #open(args.output_csv, 'w+')
         
     else:
 

@@ -7,14 +7,18 @@ import processing.utilities.file_utilities as file_util
 from processing.job import Job
 
 
+test_dict = {'south_america': 751}
+
+
 def build_projwin_jobs(source_raster, data_dir, grid_shp, is_test, q):
 
     tile_dict = build_tile_dict(data_dir, grid_shp, source_raster)
 
     if is_test:
-        first_key = tile_dict.keys()[0]
-        first_value = tile_dict[first_key]
-        tile_dict = {first_key: first_value}
+        region = os.path.basename(data_dir)
+        test_key = test_dict[region]
+        test_value = tile_dict[test_key]
+        tile_dict = {test_key: test_value}
 
     create_jobs_from_dict(tile_dict, source_raster, data_dir, q)
 
