@@ -8,21 +8,21 @@ from utilities import raster_utilities, file_utilities
 
 def create_30_days_mask(tile_dict, data_dir, q):
 
-    glad_tile_dir = os.path.join(data_dir, 'glad_tiles')
-    glad30_days_dir = os.path.join(data_dir, 'glad_30days')
+    glad_tile_dir = os.path.join(data_dir, 'glad_source')
+    glad30days_dir = os.path.join(data_dir, 'glad_30days')
     emissions_clip_dir = os.path.join(data_dir, 'emissions_clip')
     emissions30_days_dir = os.path.join(data_dir, 'emissions_30days')
 
     for tile_id, coord_list in tile_dict.iteritems():
 
-        filter_glad_30days(tile_id, glad_tile_dir, glad30_days_dir)
+        filter_glad_30days(tile_id, glad_tile_dir, glad30days_dir, q)
 
-        clip_emissions(tile_id, coord_list, data_dir, emissions_clip_dir)
+        clip_emissions(tile_id, coord_list, data_dir, emissions_clip_dir, q)
 
-        extract_emissions_30days(tile_id, glad30days_dir, emissions_clip_dir, emissions30_days_dir)
+        extract_emissions_30days(tile_id, glad30days_dir, emissions_clip_dir, emissions30_days_dir, q)
 
 
-def filter_glad_30days(tile_id, input_dir, output_dir):
+def filter_glad_30days(tile_id, input_dir, output_dir, q):
 
     input_raster = os.path.join(input_dir, '{0}.tif'.format(tile_id))
     output_raster = os.path.join(output_dir, '{0}.tif'.format(tile_id))
@@ -51,7 +51,9 @@ def filter_glad_30days(tile_id, input_dir, output_dir):
 
     q.put(j)
 
-def clip_emissions(tile_id, bbox_coords, data_dir, output_dir):
+def clip_emissions(tile_id, bbox_coords, data_dir, output_dir, q):
+
+    region_name = os.path.basename(data_dir)
 
     emissions_dir = os.path.join(os.path.dirname(data_dir), 'emissions')
     emissions_ras = os.path.join(emissions_dir, '{0}.tif'.format(region_name))
@@ -67,7 +69,7 @@ def clip_emissions(tile_id, bbox_coords, data_dir, output_dir):
 
     q.put(j)
 
-def extract_emissions_30days(tile_id, glad30days_dir, emissions_clip_dir, emissions_30days_dir):
+def extract_emissions_30days(tile_id, glad30days_dir, emissions_clip_dir, emissions_30days_dir, q):
 
     if os.name == 'nt':
         gdal_calc_path = r'C:\Program Files\GDAL\gdal_calc.py'
@@ -78,7 +80,7 @@ def extract_emissions_30days(tile_id, glad30days_dir, emissions_clip_dir, emissi
 
     tif_filename = '{0}.tif'.format(tile_id)
 
-    glad_30days = os.path.join(glad30days_dir, tif_filename)
+    glad30days = os.path.join(glad30days_dir, tif_filename)
     emissions_clip = os.path.join(glad30days_dir, tif_filename)
     emissions_30days = os.path.join(emissions_30days_dir, tif_filename)
 

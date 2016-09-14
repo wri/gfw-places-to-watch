@@ -13,14 +13,8 @@ download_dict = {
                     'asia': ['borneo']
                 }
 
-test_extent_dict = {
-                    'south_america': ['-74.5', '-6.9', '-72.7', '-8.8'],
-                    'africa': ['16.3', '1.5', '16.4', '1.4'],
-                    'asia': ['116.5', '-0.9', '116.7', '-1.1']
-                    }
 
-
-def download_glad(region, data_dir, is_test):
+def download_glad(region, data_dir):
 
     pull_from_s3(region, data_dir)
 
@@ -35,16 +29,16 @@ def download_glad(region, data_dir, is_test):
 
     final_source = os.path.join(data_dir, 'source.tif')
 
-    if is_test:
-        extract_test_data(region, src_file, final_source)
-
-    elif multiple_countries:
-        vrt_to_tif(src_file, final_source)
+    if multiple_countries:
+#        vrt_to_tif(src_file, final_source)
+        final_source = os.path.join(data_dir, 'output.vrt')
 
     else:
         shutil.move(src_file, final_source)
 
     file_util.write_marker_txt_file(final_source)
+
+    return final_source
 
 
 def build_vrt(ras_name_list, data_dir):
