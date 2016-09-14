@@ -1,7 +1,7 @@
 import os
 import logging
 
-from processing import raster_math, build_conversion_jobs, download_glad_source
+from processing import raster_math, tile_raster, build_conversion_jobs, download_glad_source
 from processing.utilities import file_utilities as file_util
 
 
@@ -19,6 +19,8 @@ class Region(object):
         self.script_dir = os.path.join(self.root_dir, 'processing', 'utilities')
         self.data_dir = os.path.join(self.root_dir, 'data', self.name)
 
+        self.tile_dict = None
+
         # remove all files from data_dir before we start this process
         file_util.remove_all_files(self.data_dir)
 
@@ -29,6 +31,10 @@ class Region(object):
 
     def prep_raster_data(self):
         print 'Starting to prep glad data'
+
+        tile_grid_shp = os.path.join(self.root_dir, 'data', 'footprint_5degrees.shp')
+        tile_dict = tile_raster.build_projwin_jobs(self.data_dir, tile_grid_shp, self.q)
+
         raster_math.create_30_days_mask(self.name, self.data_dir, self.q)
 
     def emissions_to_point(self):
