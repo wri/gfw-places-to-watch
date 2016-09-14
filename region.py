@@ -33,12 +33,4 @@ class Region(object):
 
     def emissions_to_point(self):
         print 'Converting output raster to points'
-
         build_conversion_jobs.convert(self.data_dir, self.script_dir, self.q)
-
-    def classify_point_data_by_grid_cell(self):
-        print 'Updating sqlite data'
-
-    def tabulate_results(self):
-        print 'tabulating results'
-

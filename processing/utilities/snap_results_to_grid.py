@@ -32,6 +32,7 @@ def snap_alerts_to_grid(input_csv):
             snap_y = round((eck_y - 5000 + 144.58445) / 10000) * 10000 - 144.58445
             snap_x = round((eck_x - 5000 + 3593.06028) / 10000) * 10000 - 3593.06028
 
+            # output.append(((snap_y, snap_x), (1, emiss_val)))
             output.append(((snap_y, snap_x), (1, emiss_val)))
 
     return output
@@ -83,12 +84,9 @@ def count_alerts_by_grid(root_dir, region_list, threads):
     mapper = multiprocessing_mapreduce.SimpleMapReduce(snap_alerts_to_grid, sum_alerts, threads)
     grid_counts = mapper(input_files)
 
-    grid_counts.sort(key=operator.itemgetter(1))
-    grid_counts.reverse()
+    print 'Map Reduce job complete.'
 
     output_dict = {}
-
-    print 'Map Reduce job complete.'
 
     for lower_left_corner, results_tuple in grid_counts:
         output_dict[lower_left_corner] = {'glad_count': results_tuple[0], 'emissions_sum': results_tuple[1]}

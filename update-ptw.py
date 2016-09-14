@@ -40,7 +40,7 @@ def main():
 
     job.process_queue(args.threads, q, args.debug)
 
-    api_json = calculate_grid_score.summarize(root_dir, region_list, args.threads)
+    top_break_json = calculate_grid_score.summarize(root_dir, region_list, args.threads)
 
     # TODO add something to push results to API
 
