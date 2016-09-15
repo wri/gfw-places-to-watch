@@ -13,16 +13,21 @@ class Job(object):
     :param arguments A list of arguments to follow it
     :param input: the inputs required for the job to be executed
     :param output: the output file
+    :param to_delete: any rasters that can be deleted after this process is run
     :return:
     """
 
-    def __init__(self, executable, arguments=None, input=None, output=None):
+    def __init__(self, executable, arguments=None, input=None, output=None, to_delete=None):
 
         self.executable = executable
         self.arguments = arguments
 
         self._input = None
         self.input = input
+
+        self._to_delete = None
+        self.to_delete = to_delete
+
 
         self.output = output
 
@@ -39,6 +44,20 @@ class Job(object):
         else:
             i = []
         self._input = i
+
+    # Validate to_delete
+    @property
+    def to_delete(self):
+        return self._to_delete
+
+    @to_delete.setter
+    def to_delete(self, t):
+        if t:
+            if not isinstance(t, (list, tuple)):
+                t = [t]
+        else:
+            t = []
+        self._to_delete = t
 
     def inputs_ready(self, worker_id, debug):
 
@@ -95,6 +114,10 @@ class Job(object):
         # Leave a .txt file in the folder. This will signal to other workers that this
         # output raster is complete, and can be used as an input to other processes
         util.write_marker_txt_file(self.output)
+
+        # Delete any intermediate files (used mostly if we need to save space)
+        for to_del in self.to_delete:
+            os.remove(to_del)
 
 
 def process_queue(num_threads, q, debug):

@@ -37,6 +37,7 @@ def filter_glad_30days(tile_id, input_dir, output_dir, q):
 
     j.input = input_raster
     j.output = output_raster
+    j.to_delete = input_raster
 
     frm = '%Y.%m.%d'
     todays_date = time.strftime(frm)
@@ -50,6 +51,7 @@ def filter_glad_30days(tile_id, input_dir, output_dir, q):
     j.arguments += ['--type=Float32', '--NoDataValue=0']
 
     q.put(j)
+
 
 def clip_emissions(tile_id, bbox_coords, data_dir, output_dir, q):
 
@@ -68,6 +70,7 @@ def clip_emissions(tile_id, bbox_coords, data_dir, output_dir, q):
     j.output = emissions_clip
 
     q.put(j)
+
 
 def extract_emissions_30days(tile_id, glad30days_dir, emissions_clip_dir, emissions_30days_dir, q):
 
@@ -89,6 +92,7 @@ def extract_emissions_30days(tile_id, glad30days_dir, emissions_clip_dir, emissi
 
     j.input = [glad30days, emissions_clip]
     j.output = emissions_30days
+    j.to_delete = [glad30days, emissions_clip]
 
     q.put(j)
 
