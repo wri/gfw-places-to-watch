@@ -23,3 +23,5 @@ data/temp
 
 #testing files
 *.bat
+
+*.lock
