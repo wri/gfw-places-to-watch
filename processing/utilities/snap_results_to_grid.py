@@ -32,8 +32,8 @@ def snap_alerts_to_grid(input_csv):
 
             eck_y, eck_x = wgs84_to_eckert_vi(lat_val, lon_val)
 
-            snap_y = round((eck_y - 5000 + 144.58445) / 10000) * 10000 - 144.58445
-            snap_x = round((eck_x - 5000 + 3593.06028) / 10000) * 10000 - 3593.06028
+            snap_y = round((eck_y - 5000 + 144.5844) / 10000) * 10000 - 144.5844
+            snap_x = round((eck_x - 5000 + 3593.0603) / 10000) * 10000 - 3593.0603
 
             output.append(((snap_y, snap_x), (1, emiss_val)))
 
@@ -96,5 +96,5 @@ def count_alerts_by_grid(root_dir, region_list, threads):
     return output_dict
 
 
-if __name__ == '__main__':
-    count_alerts_by_grid(r'/home/ubuntu/gfw-places-to-watch', ['south_america'], 2)
+# if __name__ == '__main__':
+#     count_alerts_by_grid(r'/home/ubuntu/gfw-places-to-watch', ['south_america'], 2)

@@ -78,7 +78,7 @@ def calc_natural_breaks(ptw_dict):
         if ptw_dict[grid_id]['score'] >= base_break:
             top_break_ptw_dict[grid_id] = results
 
-    outfile = os.path.join(os.path.dirname(os.path.abspath(__file__)),'outfile.json')
+    outfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'outfile.json')
     with open(outfile, mode='w') as outfile_obj:
         json.dump(top_break_ptw_dict, outfile_obj)
     return top_break_ptw_dict
