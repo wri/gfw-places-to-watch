@@ -25,10 +25,16 @@ def snap_alerts_to_grid(input_csv):
 
         csv_reader = csv.reader(f, dialect)
 
+        if os.name == 'nt':
+            csv_reader.next()
+            emiss_val_offset = 3
+        else:
+            emiss_val_offset = 2
+
         for row in csv_reader:
             lat_val = float(row[1])
             lon_val = float(row[0])
-            emiss_val = float(row[2])
+            emiss_val = float(row[emiss_val_offset])
 
             eck_y, eck_x = wgs84_to_eckert_vi(lat_val, lon_val)
 

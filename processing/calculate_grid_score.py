@@ -1,8 +1,9 @@
 import os
 import fiona
 import json
+import jenks
 
-from utilities import snap_results_to_grid, jenks2
+from utilities import snap_results_to_grid
 
 
 def summarize(root_dir, region_list, threads):
@@ -70,7 +71,7 @@ def calc_natural_breaks(ptw_dict):
     for key in ptw_dict:
         ptw_score_list.append(ptw_dict[key]['score'])
 
-    breaks = jenks2.jenks(ptw_score_list, 5)
+    breaks = jenks.jenks(ptw_score_list, 5)
     base_break = breaks[len(breaks) - 2]
     print "top break value is: {}".format(base_break)
     for grid_id, results in ptw_dict.iteritems():

@@ -19,9 +19,6 @@ def main():
 
     root_dir = os.path.dirname(__file__)
 
-    if args.test:
-        args.threads = 1
-
     if args.region == 'all':
         region_list = ['south_america', 'asia', 'africa']
     else:
