@@ -7,8 +7,10 @@ import processing.utilities.file_utilities as file_util
 from processing.job import Job
 
 
-test_dict = {'south_america': 751, 'africa': 841, 'asia': 935}
-
+#test_dict = {'south_america': 751, 'africa': 841, 'asia': 935}
+test_dict = {'south_america': ['-75.0','-5.0','-74.0','-6.0'],
+            'africa': ['10.0','0.0','11.0','-1.0'],
+             'asia': ['115.0','5.0','116.0','4.0']}
 
 def build_projwin_jobs(source_raster, data_dir, grid_shp, is_test, q):
 
@@ -16,9 +18,9 @@ def build_projwin_jobs(source_raster, data_dir, grid_shp, is_test, q):
 
     if is_test:
         region = os.path.basename(data_dir)
-        test_key = test_dict[region]
-        test_value = tile_dict[test_key]
-        tile_dict = {test_key: test_value}
+        test_bbox = test_dict[region]
+        tile_dict = {1:test_bbox}
+
         print tile_dict
 
     create_jobs_from_dict(tile_dict, source_raster, data_dir, q)
