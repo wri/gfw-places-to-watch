@@ -13,6 +13,7 @@ def summarize(root_dir, region_list, threads):
     ptw_grid_dict = get_ptw_grid_attributes(root_dir)
 
     results_dict = calculate_score_by_cell(snap_dict, ptw_grid_dict)
+    print results_dict
 
     top_break_json = calc_natural_breaks(results_dict)
 
@@ -64,25 +65,41 @@ def calculate_score_by_cell(results_dict, grid_dict):
 
 
 def calc_natural_breaks(ptw_dict):
+
     print "calculating natural breaks"
+
     top_break_ptw_dict = {}
     ptw_score_list = []
 
+    # from ptw dict, write just the score into the score list
     for key in ptw_dict:
         ptw_score_list.append(ptw_dict[key]['score'])
 
+    # run jenks on the score list, returning the base break
     breaks = jenks.jenks(ptw_score_list, 5)
     base_break = breaks[len(breaks) - 2]
     print "top break value is: {}".format(base_break)
-    for grid_id, results in ptw_dict.iteritems():
 
+    # retreive those ptw cells with score >= the base break
+    for grid_id, results in ptw_dict.iteritems():
         if ptw_dict[grid_id]['score'] >= base_break:
             top_break_ptw_dict[grid_id] = results
 
-    outfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'outfile.json')
-    with open(outfile, mode='w') as outfile_obj:
-        json.dump(top_break_ptw_dict, outfile_obj)
+    list_to_json(top_break_ptw_dict, "all")
+
+
     return top_break_ptw_dict
+
+
+def list_to_json(input_list, list_name):
+
+    outfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), '{}_outfile.json'.format(list_name))
+
+    with open(outfile, mode='w') as outfile_obj:
+        json.dump(input_list, outfile_obj)
+
+    return outfile
+
 
 
 
