@@ -17,7 +17,7 @@ def create_30_days_mask(tile_dict, data_dir, q):
 
         filter_glad_30days(tile_id, glad_tile_dir, glad30days_dir, q)
 
-        clip_emissions(tile_id, coord_list, data_dir, emissions_clip_dir, q)
+        clip_emissions(tile_id, coord_list, emissions_clip_dir, q)
 
         extract_emissions_30days(tile_id, glad30days_dir, emissions_clip_dir, emissions30_days_dir, q)
 
@@ -53,12 +53,11 @@ def filter_glad_30days(tile_id, input_dir, output_dir, q):
     q.put(j)
 
 
-def clip_emissions(tile_id, bbox_coords, data_dir, output_dir, q):
+def clip_emissions(tile_id, bbox_coords, output_dir, q):
 
-    region_name = os.path.basename(data_dir)
-
-    emissions_dir = os.path.join(os.path.dirname(data_dir), 'emissions')
-    emissions_ras = os.path.join(emissions_dir, '{0}.tif'.format(region_name))
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    local_data_dir = os.path.join(os.path.dirname(root_dir), 'data')
+    emissions_ras = os.path.join(local_data_dir, 'emissions', 'emissions.vrt')
     emissions_clip = os.path.join(output_dir, '{0}.tif'.format(tile_id))
 
     j = Job('gdal_translate', ['-co', 'COMPRESS=LZW', '--config', 'GDAL_CACHEMAX', file_utilities.get_mem_pct()])
