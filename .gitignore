@@ -25,3 +25,5 @@ data/temp
 *.bat
 
 *.lock
+
+tokens/

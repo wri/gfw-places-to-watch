@@ -3,7 +3,7 @@ import datetime
 import time
 
 from processing.job import Job
-from utilities import raster_utilities, file_utilities
+from utilities import file_utilities
 
 
 def create_30_days_mask(tile_dict, data_dir, q):

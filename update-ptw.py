@@ -3,7 +3,7 @@ import os
 import multiprocessing
 from Queue import Queue
 
-from processing import job, calculate_grid_score
+from processing import job, calculate_grid_score, api
 from region import Region
 
 
@@ -37,9 +37,9 @@ def main():
 
     job.process_queue(args.threads, q, args.debug)
 
-    top_break_json = calculate_grid_score.summarize(root_dir, region_list, args.threads)
+    top_break_rows = calculate_grid_score.summarize(root_dir, region_list, args.threads)
 
-    # TODO add something to push results to API
+    api.push_to_carto(top_break_rows, root_dir)
 
 
 if __name__ == '__main__':
