@@ -41,7 +41,7 @@ def get_token(account_id, root_dir):
 
     with open(local_token, "r") as f:
         for row in f:
-            token = row
+            token = row.replace('\n','').replace('\r','')
             break
 
     return token
@@ -50,14 +50,15 @@ def get_token(account_id, root_dir):
 def truncate_table(url, table_name):
 
     sql = 'DELETE FROM {0}'.format(table_name)
-    r = requests.get(url.format(sql=sql))
+    req_url = url.format(sql=sql)
 
-    validate_response(r)
+    r = requests.get(req_url)
+    validate_response(r, req_url)
 
 
 def push_results(url, table_name, result_rows):
 
-    col_names = ['emissions_sum', 'glad_count', 'grid_id', 'iso', 'score']
+    col_names = ['emissions_sum', 'glad_count', 'grid_id', 'ISO', 'score']
     template_sql = 'INSERT INTO {table_name} ( {cols} ) VALUES ( {values} )'
 
     for row in result_rows:
@@ -67,14 +68,15 @@ def push_results(url, table_name, result_rows):
         data_str = data_to_string(data)
 
         sql = template_sql.format(table_name=table_name, cols=col_str, values=data_str)
+        req_url = url.format(sql=sql)
 
-        r = requests.get(url.format(sql=sql))
-        validate_response(r)
+        r = requests.get(req_url)
+        validate_response(r, req_url)
 
 
-def validate_response(r):
+def validate_response(r, url):
 
     if r.status_code == 200 and 'error' not in r.json().keys():
         print 'Request succeeded'
     else:
-        raise ValueError('Request failed. Response: ', r.json())
+        raise ValueError('Request failed. Response: ', r.json(), '\n', url)
