@@ -1,12 +1,18 @@
 import os
+import datetime
 import requests
 
 
-def push_to_carto(result_rows, root_dir):
+def push_to_carto(result_rows, root_dir, is_test):
 
-    username = 'wri-01'
+    if is_test:
+        username = 'wri-02'
+    else:
+        username = 'wri-01'
+
     token = get_token(username, root_dir)
     table_name = 'ptw_top_breaks'
+    archive_table = table_name + '_archive'
 
     # Note the {{ }} around sql-- this allows us to format this string in two places
     # First we add username/token here, then we can add sql later
@@ -14,7 +20,11 @@ def push_to_carto(result_rows, root_dir):
 
     truncate_table(url, table_name)
 
+    # push results to regular table
     push_results(url, table_name, result_rows)
+
+    # push results to archive (this table isn't truncated)
+    push_results(url, archive_table, result_rows)
 
 
 def data_to_string(data):
@@ -60,11 +70,16 @@ def push_results(url, table_name, result_rows):
 
     col_names = ['emissions_sum', 'glad_count', 'grid_id', 'ISO', 'score']
     template_sql = 'INSERT INTO {table_name} ( {cols} ) VALUES ( {values} )'
+    
+    date_str = datetime.datetime.now().strftime('%m-%d-%y')
 
     for row in result_rows:
         data = [row[col] for col in col_names]
 
-        col_str = ', '.join(col_names)
+        # Add date to row data
+        data.append(date_str)
+
+        col_str = ', '.join(col_names + ['datestamp'])
         data_str = data_to_string(data)
 
         sql = template_sql.format(table_name=table_name, cols=col_str, values=data_str)

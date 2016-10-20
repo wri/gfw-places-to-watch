@@ -12,21 +12,28 @@ def main():
     parser.add_argument('--output_csv', '-o', help='the raster to process', required=True)
     args = parser.parse_args()
 
+    # Grab exceptions, not just error messages
+    # http://gis.stackexchange.com/questions/73463
+    gdal.UseExceptions()
+
     # Source: http://gis.stackexchange.com/questions/90726
     # open raster and choose band to find min, max
     gtif = gdal.Open(args.input_ras)
     srcband = gtif.GetRasterBand(1)
 
+    to_point = True
+
     # Get raster statistics
-    stats = srcband.GetStatistics(True, True)
+    try:
+        # First arg: Allow statistics to be computed based on overviews or a subset of grid tiles.
+        # Second arg: Allow statistics to be returned by rescanning the image
+        # http://www.gdal.org/classGDALRasterBand.html
+        srcband.GetStatistics(False, True)
 
-    if len(set(stats)) == 1 and stats[0] == 0.0:
-        print 'Raster {0} has no valid pixels'.format(os.path.basename(args.input_ras))
-
-        # Create csv placeholder but don't write anything to it
-        #open(args.output_csv, 'w+')
+    except RuntimeError:
+        to_point = False
         
-    else:
+    if to_point:
 
         # Windows
         if os.name == 'nt':

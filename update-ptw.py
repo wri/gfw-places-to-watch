@@ -39,7 +39,7 @@ def main():
 
     top_break_rows = calculate_grid_score.summarize(root_dir, region_list, args.threads)
 
-    api.push_to_carto(top_break_rows, root_dir)
+    api.push_to_carto(top_break_rows, root_dir, args.test)
 
 
 if __name__ == '__main__':
