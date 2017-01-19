@@ -79,7 +79,7 @@ def calculate_score_by_cell(results_dict, grid_dict):
         else:
             root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             error_log = os.path.join(root_dir, "error.log")
-            with open(error_log, 'w') as errortext:
+            with open(error_log, 'a') as errortext:
                 errortext.write(str(lower_left_corner) + '\n')
 
     return ptw_dict
