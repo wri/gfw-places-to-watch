@@ -9,7 +9,7 @@ from processing.job import Job
 
 test_dict = {'south_america': ['-75.0', '-5.0', '-74.0', '-6.0'],
              'africa': ['10.0', '0.0', '11.0', '-1.0'],
-             'asia': ['115.0', '5.0', '116.0', '4.0']}
+             'se_asia': ['115.0', '5.0', '116.0', '4.0']}
 
 
 def build_projwin_jobs(source_raster, data_dir, grid_shp, is_test, q):

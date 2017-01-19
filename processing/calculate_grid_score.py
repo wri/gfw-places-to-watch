@@ -14,7 +14,7 @@ def summarize(root_dir, region_list, threads):
 
     results_dict = calculate_score_by_cell(snap_dict, ptw_grid_dict)
 
-    top_break_json = calc_natural_breaks(results_dict)
+    top_break_json = filter_top_10(results_dict)
 
     return top_break_json
 
@@ -47,73 +47,51 @@ def calculate_score_by_cell(results_dict, grid_dict):
 
         ptw_score = grid_dict[lower_left_corner]['importance']
         grid_id = grid_dict[lower_left_corner]['grid_id']
-        iso = grid_dict[lower_left_corner]['ISO']
+        region = grid_dict[lower_left_corner]['region']
 
-        result_dict['ISO'] = iso
+        result_dict['region'] = region
         result_dict['score'] = ptw_score * result_dict['glad_count']
         result_dict['grid_id'] = grid_id
 
         # Example PTW dict
         # From:
-        #{"emissions_sum": 0.0008351699999999998, "score": 0.0, "glad_count": 21, "ISO": "COG", "grid_id": "COG_107229"}
+        #{"emissions_sum": 0.0008351699999999998, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_107229"}
         # create key of the iso, and add each dictionary as item in list.
         # To:
-        # {"COG":[{"emissions_sum": 0.00083, "score": 0.0, "glad_count": 21, "ISO": "COG", "grid_id": "COG_107229"},
-        #{"emissions_sum": 0.000835, "score": 0.0, "glad_count": 21, "ISO": "COG", "grid_id": "COG_10742"}],"IDN":[...]}
+        # {"africa":[{"emissions_sum": 0.00083, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_107229"},
+        #{"emissions_sum": 0.000835, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_10742"}],"IDN":[...]}
         try:
-            ptw_dict[iso].append(result_dict)
+            ptw_dict[region].append(result_dict)
 
         except:
-            ptw_dict[iso] = [result_dict]
-
-    process_results(ptw_dict, "all_data")
+            ptw_dict[region] = [result_dict]
 
     return ptw_dict
 
 
-def calc_natural_breaks(ptw_dict):
+def filter_top_10(ptw_dict):
 
-    print "calculating natural breaks"
-    top_break_ptw_dict = {}
+    all_region_top_10 = []
 
-    for country, country_dict_list in ptw_dict.iteritems():
+    for region, region_dict_list in ptw_dict.iteritems():
 
-        ptw_score_list = []
+        sorted_regiondictlist = sorted(region_dict_list, key=lambda k: k['score'], reverse=True)
 
-        # from ptw dict, write just the score into the score list
-        for country_dict in country_dict_list:
-            ptw_score_list.append(country_dict['score'])
+        top_10_unfiltered = sorted_regiondictlist[0:10]
 
-        # run jenks on the score list, returning the base break
-        breaks = jenks.jenks(ptw_score_list, 5)
-        base_break = breaks[len(breaks) - 2]
-        print "{} top break value is: {}".format(country, base_break)
+        top_10 = [d for d in top_10_unfiltered if d['score'] > 0.75]
 
-        # retreive those ptw cells with score >= the base break
-        for country_dict in country_dict_list:
+        export_results(top_10, 'top_10', region)
+        export_results(sorted_regiondictlist, 'all', region)
 
-            if country_dict['score'] >= base_break:
-                try:
-                    top_break_ptw_dict[country].append(country_dict)
-                except:
-                    top_break_ptw_dict[country] = [country_dict]
+        all_region_top_10.extend(top_10)
 
-    top_break_rows = process_results(top_break_ptw_dict, "top_break")
-
-    return top_break_rows
+    return all_region_top_10
 
 
-def process_results(input_dict, list_name):
+def export_results(export_list, list_name, region):
 
-    all_row_list = []
+    outfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), '{}_{}.json'.format(region, list_name))
 
-    for country, rows_list in input_dict.iteritems():
-
-        all_row_list.extend(rows_list)
-
-        outfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), '{}_{}.json'.format(country, list_name))
-
-        with open(outfile, mode='w') as outfile_obj:
-            json.dump(rows_list, outfile_obj)
-
-    return all_row_list
+    with open(outfile, mode='w') as outfile_obj:
+        json.dump(export_list, outfile_obj)

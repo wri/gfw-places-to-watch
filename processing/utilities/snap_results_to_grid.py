@@ -2,11 +2,9 @@ import os
 import multiprocessing
 import csv
 import json
-import operator
 import glob
 from osgeo import osr, ogr
 
-#from processing.utilities import multiprocessing_mapreduce
 import multiprocessing_mapreduce
 
 
@@ -26,20 +24,22 @@ def snap_alerts_to_grid(input_csv):
         csv_reader = csv.reader(f, dialect)
 
         if os.name == 'nt':
+            # set GDAL_DATA environment variable
+            os.environ['GDAL_DATA'] = r'C:\Program Files\GDAL\gdal-data'
+
             csv_reader.next()
             emiss_val_offset = 3
         else:
             emiss_val_offset = 2
 
         for row in csv_reader:
+
             lat_val = float(row[1])
             lon_val = float(row[0])
             emiss_val = float(row[emiss_val_offset])
 
             eck_y, eck_x = wgs84_to_eckert_vi(lat_val, lon_val)
 
-#            snap_y = round((eck_y - 5000 + 144.5845) / 10000) * 10000 - 144.5845
-#            snap_x = round((eck_x - 5000 + 3593.0603) / 10000) * 10000 - 3593.0603
             snap_y = int(round((eck_y - 5000 + 145) / 10000) * 10000) - 145
             snap_x = int(round((eck_x - 5000 + 3593) / 10000) * 10000) - 3593
 

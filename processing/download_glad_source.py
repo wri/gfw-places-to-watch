@@ -7,9 +7,9 @@ import logging
 import utilities.file_utilities as file_util
 
 download_dict = {
-                    'south_america': ['brazil_day_2017', 'peru_day_2017'],
-                    'africa': 'africa_day_2017n',
-                    'se_asia': 'SEA_day_2017n'
+                    'south_america': ['brazil_day2017', 'peru_day2017'],
+                    'africa': ['africa_day_2017n'],
+                    'se_asia': ['SEA_day_2017n']
                 }
 
 test_extent_dict = {
@@ -90,6 +90,7 @@ def pull_from_s3(region, data_dir):
     ras_name_list = download_dict[region]
 
     for ras_name in ras_name_list:
+
         url = glad_url.format(ras_name)
 
         file_name = ras_name + '.tif'

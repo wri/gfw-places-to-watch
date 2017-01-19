@@ -11,7 +11,7 @@ def push_to_carto(result_rows, root_dir, is_test):
         username = 'wri-01'
 
     token = get_token(username, root_dir)
-    table_name = 'ptw_top_breaks'
+    table_name = 'ptw_top_10'
     archive_table = table_name + '_archive'
 
     # Note the {{ }} around sql-- this allows us to format this string in two places
@@ -68,7 +68,7 @@ def truncate_table(url, table_name):
 
 def push_results(url, table_name, result_rows):
 
-    col_names = ['emissions_sum', 'glad_count', 'grid_id', 'ISO', 'score']
+    col_names = ['emissions_sum', 'glad_count', 'grid_id', 'region', 'score']
     template_sql = 'INSERT INTO {table_name} ( {cols} ) VALUES ( {values} )'
     
     date_str = datetime.datetime.now().strftime('%m-%d-%y')

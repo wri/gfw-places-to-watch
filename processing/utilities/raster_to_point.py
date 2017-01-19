@@ -43,9 +43,22 @@ def main():
             temp_shp = os.path.splitext(args.output_csv)[0] + '.shp'
             arcpy.RasterToPoint_conversion(args.input_ras, temp_shp, "VALUE")
 
-            print 'Writing point shapefile to CSV'
+            # print 'Writing point shapefile to CSV'
+            # temp_csv = os.path.join(os.path.dirname(args.output_csv), 'temp.csv')
+
             cmd = ['ogr2ogr', '-f', 'CSV', args.output_csv, temp_shp, '-lco', 'GEOMETRY=AS_XY']
             subprocess.check_call(cmd)
+
+            # with open(args.output_csv, 'wb') as outputcsv_handle:
+            #     csv_writer = csv.writer(outputcsv_handle)
+            #     with open(temp_csv, 'r') as temp_handle:
+            #         csv_reader = csv.reader(temp_handle)
+            #         csv_reader.next()
+            #         for line in csv_reader:
+            #             print line
+            #             csv_writer.writerow(line)
+            #
+            # os.remove(temp_csv)
 
         else:
             # -s flag filters input to remove NaN values, greatly increasing speed
