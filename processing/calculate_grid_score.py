@@ -45,26 +45,42 @@ def calculate_score_by_cell(results_dict, grid_dict):
         # Example result dict:
         # {(2312312.2354, 234900.12300): {'glad_count': 234, 'emissions_sum': 0.00023}}
 
-        ptw_score = grid_dict[lower_left_corner]['importance']
-        grid_id = grid_dict[lower_left_corner]['grid_id']
-        region = grid_dict[lower_left_corner]['region']
+        has_match = False
 
-        result_dict['region'] = region
-        result_dict['score'] = ptw_score * result_dict['glad_count']
-        result_dict['grid_id'] = grid_id
-
-        # Example PTW dict
-        # From:
-        #{"emissions_sum": 0.0008351699999999998, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_107229"}
-        # create key of the iso, and add each dictionary as item in list.
-        # To:
-        # {"africa":[{"emissions_sum": 0.00083, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_107229"},
-        #{"emissions_sum": 0.000835, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_10742"}],"IDN":[...]}
         try:
-            ptw_dict[region].append(result_dict)
+            matching_feat = grid_dict[lower_left_corner]
+            has_match = True
 
-        except:
-            ptw_dict[region] = [result_dict]
+        except KeyError:
+            has_match = False
+
+        if has_match:
+            ptw_score = grid_dict[lower_left_corner]['importance']
+            grid_id = grid_dict[lower_left_corner]['grid_id']
+            region = grid_dict[lower_left_corner]['region']
+
+            result_dict['region'] = region
+            result_dict['score'] = ptw_score * result_dict['glad_count']
+            result_dict['grid_id'] = grid_id
+
+            # Example PTW dict
+            # From:
+            #{"emissions_sum": 0.0008351699999999998, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_107229"}
+            # create key of the iso, and add each dictionary as item in list.
+            # To:
+            # {"africa":[{"emissions_sum": 0.00083, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_107229"},
+            #{"emissions_sum": 0.000835, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_10742"}],"IDN":[...]}
+            try:
+                ptw_dict[region].append(result_dict)
+
+            except:
+                ptw_dict[region] = [result_dict]
+
+        else:
+            root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            error_log = os.path.join(root_dir, "error.log")
+            with open(error_log, 'w') as errortext:
+                errortext.write(str(lower_left_corner) + '\n')
 
     return ptw_dict
 
