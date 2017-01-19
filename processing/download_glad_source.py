@@ -8,7 +8,7 @@ import utilities.file_utilities as file_util
 
 download_dict = {
                     'south_america': ['brazil_day2017', 'peru_day2017'],
-                    'africa': ['africa_day_2017n'],
+                    'africa': ['Africa_day_2017n'],
                     'se_asia': ['SEA_day_2017n']
                 }
 
