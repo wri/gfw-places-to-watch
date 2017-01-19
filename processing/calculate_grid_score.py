@@ -45,7 +45,7 @@ def calculate_score_by_cell(results_dict, grid_dict):
         # Example result dict:
         # {(2312312.2354, 234900.12300): {'glad_count': 234, 'emissions_sum': 0.00023}}
 
-        ptw_score = grid_dict[lower_left_corner]['wt_IFL2']
+        ptw_score = grid_dict[lower_left_corner]['importance']
         grid_id = grid_dict[lower_left_corner]['grid_id']
         iso = grid_dict[lower_left_corner]['ISO']
 

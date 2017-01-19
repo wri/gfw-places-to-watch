@@ -28,7 +28,6 @@ class Job(object):
         self._to_delete = None
         self.to_delete = to_delete
 
-
         self.output = output
 
     # Validate input

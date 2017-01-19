@@ -6,12 +6,17 @@ import logging
 
 import utilities.file_utilities as file_util
 
-
 download_dict = {
-                    'south_america': ['brazil', 'peru'],
-                    'africa': ['roc'],
-                    'asia': ['borneo']
+                    'south_america': ['brazil_day_2017', 'peru_day_2017'],
+                    'africa': 'africa_day_2017n',
+                    'se_asia': 'SEA_day_2017n'
                 }
+
+test_extent_dict = {
+                    'south_america': [-8.8, -74.5, -6.9, -72.7],
+                    'africa': [1.4, 16.3, 1.5, 16.4],
+                    'se_asia': [-1.1, 116.5, -0.9, 116.7]
+                    }
 
 
 def download_glad(region, data_dir):
@@ -30,7 +35,6 @@ def download_glad(region, data_dir):
     final_source = os.path.join(data_dir, 'source.tif')
 
     if multiple_countries:
-#        vrt_to_tif(src_file, final_source)
         final_source = os.path.join(data_dir, 'output.vrt')
 
     else:
@@ -45,7 +49,6 @@ def build_vrt(ras_name_list, data_dir):
 
     output_vrt = os.path.join(data_dir, 'output.vrt')
     vrt_cmd = ['gdalbuildvrt', output_vrt]
-
 
     for ras_name in ras_name_list:
         src_path = os.path.join(data_dir, ras_name + '.tif')
@@ -82,7 +85,7 @@ def extract_test_data(region, src_file, final_source):
 
 def pull_from_s3(region, data_dir):
 
-    glad_url = r'http://umd-landsat-alerts.s3.amazonaws.com/{0}_day2016.tif'
+    glad_url = r'http://umd-landsat-alerts.s3.amazonaws.com/{0}.tif'
 
     ras_name_list = download_dict[region]
 
