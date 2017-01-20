@@ -49,20 +49,10 @@ def main():
             cmd = ['ogr2ogr', '-f', 'CSV', args.output_csv, temp_shp, '-lco', 'GEOMETRY=AS_XY']
             subprocess.check_call(cmd)
 
-            # with open(args.output_csv, 'wb') as outputcsv_handle:
-            #     csv_writer = csv.writer(outputcsv_handle)
-            #     with open(temp_csv, 'r') as temp_handle:
-            #         csv_reader = csv.reader(temp_handle)
-            #         csv_reader.next()
-            #         for line in csv_reader:
-            #             print line
-            #             csv_writer.writerow(line)
-            #
-            # os.remove(temp_csv)
-
         else:
             # -s flag filters input to remove NaN values, greatly increasing speed
             subprocess.check_call(['gmt', 'grd2xyz', args.input_ras, '>', args.output_csv, '-s'])
+
 
 if __name__ == '__main__':
     main()

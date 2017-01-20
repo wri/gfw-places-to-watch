@@ -115,9 +115,9 @@ class Job(object):
         util.write_marker_txt_file(self.output)
 
         # Delete any intermediate files (used mostly if we need to save space)
-        if not debug:
-            for to_del in self.to_delete:
-                os.remove(to_del)
+        #if not debug:
+        for to_del in self.to_delete:
+            os.remove(to_del)
 
 
 def process_queue(num_threads, q, debug):

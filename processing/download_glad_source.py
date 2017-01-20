@@ -12,12 +12,6 @@ download_dict = {
                     'se_asia': ['SEA_day_2017n']
                 }
 
-test_extent_dict = {
-                    'south_america': [-8.8, -74.5, -6.9, -72.7],
-                    'africa': [1.4, 16.3, 1.5, 16.4],
-                    'se_asia': [-1.1, 116.5, -0.9, 116.7]
-                    }
-
 
 def download_glad(region, data_dir):
 
@@ -70,17 +64,6 @@ def vrt_to_tif(vrt_file, output_tif):
     subprocess.check_call(cmd)
 
     return output_tif
-
-
-def extract_test_data(region, src_file, final_source):
-
-    cmd = ['gdal_translate', '-co', 'COMPRESS=LZW', '--config', 'GDAL_CACHEMAX', file_util.get_mem_pct()]
-    cmd += ['-projwin'] + test_extent_dict[region]
-    cmd += [src_file, final_source]
-
-    subprocess.check_call(cmd)
-
-    return final_source
 
 
 def pull_from_s3(region, data_dir):

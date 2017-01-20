@@ -94,5 +94,3 @@ def extract_emissions_30days(tile_id, glad30days_dir, emissions_clip_dir, emissi
     j.to_delete = [glad30days, emissions_clip]
 
     q.put(j)
-
-    return emissions_30days

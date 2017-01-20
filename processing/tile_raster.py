@@ -44,16 +44,19 @@ def build_tile_dict(data_dir, grid_shp, source_raster):
             for g in grid:
                 for i in index:
                     if shape(g['geometry']).intersects(shape(i['geometry'])):
-                        coords = g['geometry']['coordinates'][0]
+                        intersect_area = round(shape(g['geometry']).intersection(shape(i['geometry'])).area, 6)
+                        
+                        if intersect_area != 0.0:
+                            coords = g['geometry']['coordinates'][0]
     
-                        upper_left = coords[1]
-                        lower_right = coords[3]
+                            upper_left = coords[1]
+                            lower_right = coords[3]
 
-                        tile_id = g['properties']['uniqueid']
-                        coord_list_int = [upper_left[0], upper_left[1], lower_right[0], lower_right[1]]
-                        coord_list = [str(round(x)) for x in coord_list_int]
+                            tile_id = g['properties']['uniqueid']
+                            coord_list_int = [upper_left[0], upper_left[1], lower_right[0], lower_right[1]]
+                            coord_list = [str(round(x)) for x in coord_list_int]
 
-                        tile_dict[tile_id] = coord_list
+                            tile_dict[tile_id] = coord_list
 
     return tile_dict
 
