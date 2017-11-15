@@ -7,7 +7,7 @@ import logging
 import utilities.file_utilities as file_util
 
 download_dict = {
-                    'south_america': ['brazil_day2017', 'peru_day2017'],
+                    'south_america': ['sa_day2017'],
                     'africa': ['Africa_day_2017n'],
                     'se_asia': ['SEA_day_2017n']
                 }
@@ -68,7 +68,7 @@ def vrt_to_tif(vrt_file, output_tif):
 
 def pull_from_s3(region, data_dir):
 
-    glad_url = r'http://umd-landsat-alerts.s3.amazonaws.com/{0}.tif'
+    glad_url = r'http://gfw-gee-glad-export.s3.amazonaws.com//{0}.tif'
 
     ras_name_list = download_dict[region]
 
