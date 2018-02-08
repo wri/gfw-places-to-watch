@@ -1,113 +1,97 @@
-import os
-import fiona
-import json
-import jenks
+import datetime
+from urlparse import urlparse
+from StringIO import StringIO
 
-from utilities import snap_results_to_grid
-
-
-def summarize(root_dir, region_list, threads):
-
-    snap_dict = snap_results_to_grid.count_alerts_by_grid(root_dir, region_list, threads)
-
-    ptw_grid_dict = get_ptw_grid_attributes(root_dir)
-
-    results_dict = calculate_score_by_cell(snap_dict, ptw_grid_dict)
-
-    top_break_json = filter_top_10(results_dict)
-
-    return top_break_json
+import pandas as pd
+import boto3
 
 
-def get_ptw_grid_attributes(root_dir):
+def tabulate_results(s3_path_list, min_year, min_julian_day, staging):
 
-    print 'Reading attributes from grid.shp into a dictionary'
+    df = read_result_from_s3(s3_path_list)
 
-    grid_dict = {}
+    df = filter_by_last_date(df, min_year, min_julian_day)
 
-    grid_fc = os.path.join(root_dir, 'data', 'grid', 'ptw_grid.shp')
+    top_10_list = tabulate_and_pick_top10(df)
 
-    with fiona.open(grid_fc, 'r') as the_grid:
-        for feature in the_grid:
-            lower_left_corner = (feature['properties']['lly_val'], feature['properties']['llx_val'])
-
-            grid_dict[lower_left_corner] = feature['properties']
-
-    return grid_dict
+    return top_10_list
 
 
-def calculate_score_by_cell(results_dict, grid_dict):
+def read_result_from_s3(s3_path_list):
 
-    ptw_dict = {}
+    s3_path = s3_path_list[0]
+    print 'reading results from s3 path: \n{}'.format(s3_path)
 
-    for lower_left_corner, result_dict in results_dict.iteritems():
+    # source: https://stackoverflow.com/a/35376156/4355916
+    s3 = boto3.resource('s3')
 
-        # Example result dict:
-        # {(2312312.2354, 234900.12300): {'glad_count': 234, 'emissions_sum': 0.00023}}
+    # hadoop pip returns a list of outputs; we're only using one
+    parsed = urlparse(s3_path)
 
-        has_match = False
+    # use urlparse to separate the bucket from the path, required for boto3
+    obj = s3.Object(parsed.netloc, parsed.path.lstrip('/'))
+    csv_string = obj.get()['Body'].read().decode('utf-8')
 
-        try:
-            matching_feat = grid_dict[lower_left_corner]
-            has_match = True
+    df = pd.read_csv(StringIO(csv_string), header=None)
+    df.columns = ['year', 'julian_day', 'area_ha', 'emissions_sum',
+                  'ptw_importance', 'grid_id', 'glad_count']
 
-        except KeyError:
-            has_match = False
-
-        if has_match:
-            ptw_score = grid_dict[lower_left_corner]['importance']
-            grid_id = grid_dict[lower_left_corner]['grid_id']
-            region = grid_dict[lower_left_corner]['region']
-
-            result_dict['region'] = region
-            result_dict['score'] = ptw_score * result_dict['glad_count']
-            result_dict['grid_id'] = grid_id
-
-            # Example PTW dict
-            # From:
-            #{"emissions_sum": 0.0008351699999999998, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_107229"}
-            # create key of the iso, and add each dictionary as item in list.
-            # To:
-            # {"africa":[{"emissions_sum": 0.00083, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_107229"},
-            #{"emissions_sum": 0.000835, "score": 0.0, "glad_count": 21, "region": "africa", "grid_id": "africa_10742"}],"IDN":[...]}
-            try:
-                ptw_dict[region].append(result_dict)
-
-            except:
-                ptw_dict[region] = [result_dict]
-
-        else:
-            root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            error_log = os.path.join(root_dir, "error.log")
-            with open(error_log, 'a') as errortext:
-                errortext.write(str(lower_left_corner) + '\n')
-
-    return ptw_dict
+    return df
 
 
-def filter_top_10(ptw_dict):
+def filter_by_last_date(df, min_year, min_day):
 
-    all_region_top_10 = []
+    print 'filtering df by min_year {} and min_day {}'.format(min_year, min_day)
 
-    for region, region_dict_list in ptw_dict.iteritems():
+    # remove old years, then do costly jd --> date calculation
+    # explicitly making a copy of the df because of settingwithcopy warning
+    filtered = df.loc[df.year >= min_year].copy()
+    filtered['alert_date'] = filtered.apply(lambda row: jd_to_date(row.year, row.julian_day), axis=1)
 
-        sorted_regiondictlist = sorted(region_dict_list, key=lambda k: k['score'], reverse=True)
+    # find max glad date, subtract days for our period of interest, filter
+    min_alert_date = jd_to_date(min_year, min_day)
+    filtered = filtered.loc[filtered.alert_date >= min_alert_date]
 
-        top_10_unfiltered = sorted_regiondictlist[0:10]
-
-        top_10 = [d for d in top_10_unfiltered if d['score'] > 0.75]
-
-        export_results(top_10, 'top_10', region)
-        export_results(sorted_regiondictlist, 'all', region)
-
-        all_region_top_10.extend(top_10)
-
-    return all_region_top_10
+    return filtered
 
 
-def export_results(export_list, list_name, region):
+def tabulate_and_pick_top10(df):
 
-    outfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), '{}_{}.json'.format(region, list_name))
+    print 'tabulating score per grid cell and selecting top 10 by region'
 
-    with open(outfile, mode='w') as outfile_obj:
-        json.dump(export_list, outfile_obj)
+    # group alerts by grid_id/importance, summing, count, area_ha and emissions
+    sum_list = ['glad_count', 'area_ha', 'emissions_sum']
+    grouped = df.groupby(['grid_id', 'ptw_importance'])[sum_list].sum().reset_index()
+
+    # calculate PTW score based on GLAD count * importance
+    grouped['score'] = grouped.ptw_importance * grouped.glad_count
+
+    # can drop ptw_importance now- not required for output
+    del grouped['ptw_importance']
+
+    # any score we care about must be > 0.75
+    grouped = grouped.loc[grouped.score > 0.75]
+
+    # add region based on grid_id column
+    grouped['region'] = grouped.apply(lambda row: grid_id_to_region(row['grid_id']), axis=1)
+
+    # group by region, taking top 10 score for each
+    top_10 = grouped.groupby('region')['score'].nlargest(10).reset_index()
+
+    # remove all columns from this df except for level_1, which corresponds to
+    # the index of our rows of interest in the grouped df
+    top_10 = top_10['level_1'].to_frame()
+
+    # join back to grouped to get auxiliary grid_id, score, region data etc
+    final_df = pd.merge(grouped, top_10, left_index=True, right_on='level_1')
+
+    return final_df.to_dict(orient='records')
+
+
+def jd_to_date(year, julian_day):
+    # source: https://stackoverflow.com/a/17216581/4355916
+    return datetime.date(year, 1, 1) + datetime.timedelta(julian_day - 1)
+
+
+def grid_id_to_region(grid_id):
+    return '_'.join(grid_id.split('_')[:-1])

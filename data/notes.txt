@@ -1,2 +1,0 @@
-Data for glad and terrai are stored in this directory.
-Not uploaded to Github due to size issues.

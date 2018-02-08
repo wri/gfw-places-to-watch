@@ -3,14 +3,14 @@ import datetime
 import requests
 
 
-def push_to_carto(result_rows, root_dir, is_test):
+def push_to_carto(result_rows, is_test):
 
     if is_test:
         username = 'wri-02'
     else:
         username = 'wri-01'
 
-    token = get_token(username, root_dir)
+    token = get_token(username)
     table_name = 'ptw_top_10'
     archive_table = table_name + '_archive'
 
@@ -42,7 +42,9 @@ def data_to_string(data):
     return ', '.join(str_values)
 
 
-def get_token(account_id, root_dir):
+def get_token(account_id):
+
+    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
     account_name = '{0}@cartodb'.format(account_id)
     local_token = os.path.join(root_dir, 'tokens', account_name)
@@ -70,7 +72,7 @@ def push_results(url, table_name, result_rows):
 
     col_names = ['emissions_sum', 'glad_count', 'grid_id', 'region', 'score']
     template_sql = 'INSERT INTO {table_name} ( {cols} ) VALUES ( {values} )'
-    
+
     date_str = datetime.datetime.now().strftime('%m-%d-%y')
 
     for row in result_rows:

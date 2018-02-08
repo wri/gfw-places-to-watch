@@ -1,45 +1,40 @@
 import argparse
 import os
-import multiprocessing
-from Queue import Queue
+import sys
 
-from processing import job, calculate_grid_score, api
-from region import Region
+from processing import calculate_grid_score, api
+
+external_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(external_dir)
+
+# The hadoop_pip package must be in the external dir referenced above, i.e.:
+# If you don't have it, it's available here: https://github.com/wri/hadoop_pip
+# - Desktop
+#    - gfw-places-to-watch
+#    - hadoop-pip
+
+from hadoop_pip import run_pip
 
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Download glad, find last 30 days, tabulate score by PWT grid')
-    parser.add_argument('--region', '-r', required=True, nargs='+', choices=['south_america', 'africa', 'se_asia', 'all'],
-                        help='the region to process')
-    parser.add_argument('--threads', '-n', help='the number of threads', default=multiprocessing.cpu_count(), type=int)
-    parser.add_argument('--debug', dest='debug', action='store_true')
-    parser.add_argument('--test', dest='test', action='store_true')
+    parser = argparse.ArgumentParser(description='Run hadoop process to count GLAD by PTW grid cell')
+    parser.add_argument('--min-year', '-y', required=True, type=int,
+                        help='the earliest year to include in the analysis')
+    parser.add_argument('--min-julian-day', '-d', required=True, type=int,
+                        help='the earliest julian_day to include in the analysis')
+    parser.add_argument('--staging', dest='staging', action='store_true', help='pushes results to staging table')
     args = parser.parse_args()
 
-    root_dir = os.path.dirname(__file__)
+    # start hadoop cluster, run analysis with hadoop_ptw.ini as input
+    ptw_config = os.path.join('processing', 'hadoop_ptw.ini')
+    s3_result_output = run_pip.run([ptw_config])
 
-    if args.region == ['all']:
-        region_list = ['south_america', 'se_asia', 'africa']
-    else:
-        region_list = args.region
+    # grab results from s3, tabulate glad count * importance, pick top 10 for each region
+    top_10_results = calculate_grid_score.tabulate_results(s3_result_output, **vars(args))
 
-    q = Queue()
-
-    for r in region_list:
-        region = Region(r, args.test, q)
-
-        region.download_source()
-
-        region.prep_raster_data()
-
-        region.emissions_to_point()
-
-    job.process_queue(args.threads, q, args.debug)
-
-    top_10_results = calculate_grid_score.summarize(root_dir, region_list, args.threads)
-
-    api.push_to_carto(top_10_results, root_dir, args.test)
+    # push to carto PTW table
+    api.push_to_carto(top_10_results, args.staging)
 
 
 if __name__ == '__main__':
