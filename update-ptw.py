@@ -28,7 +28,7 @@ def main():
 
     # start hadoop cluster, run analysis with hadoop_ptw.ini as input
     ptw_config = os.path.join('processing', 'hadoop_ptw.ini')
-    s3_result_output = run_pip.run([ptw_config])
+    s3_result_output = run_pip.run(ptw_config)
 
     # grab results from s3, tabulate glad count * importance, pick top 10 for each region
     top_10_results = calculate_grid_score.tabulate_results(s3_result_output, **vars(args))
