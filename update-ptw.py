@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 
-from processing import calculate_grid_score, api
+from processing import calculate_grid_score, api, validate as val
 
 external_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(external_dir)
@@ -19,10 +19,10 @@ from hadoop_pip import run_pip
 def main():
 
     parser = argparse.ArgumentParser(description='Run hadoop process to count GLAD by PTW grid cell')
-    parser.add_argument('--min-year', '-y', required=True, type=int,
-                        help='the earliest year to include in the analysis')
-    parser.add_argument('--min-julian-day', '-d', required=True, type=int,
-                        help='the earliest julian_day to include in the analysis')
+    parser.add_argument('--min-date', required=True, type=val.valid_date,
+                        help='the minimum alert date (%Y-%m-%d) to consider for this run (inclusive)')
+    parser.add_argument('--max-date', required=True, type=val.valid_date,
+                        help='the maximum alert date (%Y-%m-%d) to consider for this run (inclusive)')
     parser.add_argument('--staging', dest='staging', action='store_true', help='pushes results to staging table')
     args = parser.parse_args()
 

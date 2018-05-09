@@ -6,11 +6,11 @@ import pandas as pd
 import boto3
 
 
-def tabulate_results(s3_path_list, min_year, min_julian_day, staging):
+def tabulate_results(s3_path_list, min_date, max_date, staging):
 
     df = read_result_from_s3(s3_path_list)
 
-    df = filter_by_last_date(df, min_year, min_julian_day)
+    df = filter_by_date_range(df, min_date, max_date)
 
     top_10_list = tabulate_and_pick_top10(df)
 
@@ -39,18 +39,17 @@ def read_result_from_s3(s3_path_list):
     return df
 
 
-def filter_by_last_date(df, min_year, min_day):
+def filter_by_date_range(df, min_date, max_date):
 
-    print 'filtering df by min_year {} and min_day {}'.format(min_year, min_day)
+    print 'filtering df to remove unnecessary years'
 
     # remove old years, then do costly jd --> date calculation
     # explicitly making a copy of the df because of settingwithcopy warning
-    filtered = df.loc[df.year >= min_year].copy()
+    filtered = df.loc[(df.year >= df.min_date.year) & (df.year <= df.max_date.year)].copy()
     filtered['alert_date'] = filtered.apply(lambda row: jd_to_date(row.year, row.julian_day), axis=1)
 
-    # find max glad date, subtract days for our period of interest, filter
-    min_alert_date = jd_to_date(min_year, min_day)
-    filtered = filtered.loc[filtered.alert_date >= min_alert_date]
+    # now that the df has an alert_date column, filter using dates
+    filtered = filtered.loc[(filtered.alert_date >= min_date) & (filtered.alert_date <= max_date)]
 
     return filtered
 
@@ -95,3 +94,4 @@ def jd_to_date(year, julian_day):
 
 def grid_id_to_region(grid_id):
     return '_'.join(grid_id.split('_')[:-1])
+
