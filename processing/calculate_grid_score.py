@@ -45,7 +45,7 @@ def filter_by_date_range(df, min_date, max_date):
 
     # remove old years, then do costly jd --> date calculation
     # explicitly making a copy of the df because of settingwithcopy warning
-    filtered = df.loc[(df.year >= df.min_date.year) & (df.year <= df.max_date.year)].copy()
+    filtered = df.loc[(df.year >= min_date.year) & (df.year <= max_date.year)].copy()
     filtered['alert_date'] = filtered.apply(lambda row: jd_to_date(row.year, row.julian_day), axis=1)
 
     # now that the df has an alert_date column, filter using dates
