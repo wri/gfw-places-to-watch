@@ -6,7 +6,7 @@ import pandas as pd
 import boto3
 
 
-def tabulate_results(s3_path_list, min_date, max_date, staging):
+def tabulate_results(s3_path_list, min_date, max_date):
 
     df = read_result_from_s3(s3_path_list)
 
@@ -19,7 +19,10 @@ def tabulate_results(s3_path_list, min_date, max_date, staging):
 
 def read_result_from_s3(s3_path_list):
 
-    s3_path = s3_path_list[0]
+    # comes back as a list of lists, apparently
+    # possible to do multiple EMR steps (first level of list)
+    # and then within that, have multiple query outputs per step
+    s3_path = s3_path_list[0][0]
     print 'reading results from s3 path: \n{}'.format(s3_path)
 
     # source: https://stackoverflow.com/a/35376156/4355916
