@@ -3,7 +3,7 @@ import datetime
 import requests
 
 
-def push_to_carto(result_rows, is_test):
+def push_to_carto(result_rows, analysis_type, is_test):
 
     if is_test:
         username = 'wri-02'
@@ -11,7 +11,12 @@ def push_to_carto(result_rows, is_test):
         username = 'wri-01'
 
     token = get_token(username)
-    table_name = 'ptw_top_10'
+
+    table_name_dict = {'flagship': 'ptw_top_10',
+                       'soy': 'soy_ptw_top_10',
+                       'palm': 'palm_ptw_top_10'}
+
+    table_name = table_name_dict[analysis_type]
     archive_table = table_name + '_archive'
 
     # Note the {{ }} around sql-- this allows us to format this string in two places
@@ -97,3 +102,4 @@ def validate_response(r, url):
         print 'Request succeeded'
     else:
         raise ValueError('Request failed. Response: ', r.json(), '\n', url)
+
