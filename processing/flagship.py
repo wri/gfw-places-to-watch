@@ -1,3 +1,4 @@
+import pandas as pd
 
 
 def tabulate_and_pick_top10(df):
