@@ -30,9 +30,10 @@ def main():
 
     # start hadoop cluster, run analysis with the correct config file as input
     ptw_config = os.path.join('config', args.analysis_type + '.ini')
-    s3_result_output = run_pip.run([ptw_config])
-
+    s3_result_output = run_pip.run([ptw_config])  ##IC CHANGE BACK
+    #s3_result_output  = r's3://gfw2-data/alerts-tsv/hadoop-jobs/de7fc4be-2e2b-47bb-87ba-bed520be066c/output1.csv' #hadoop
     # grab results from s3, tabulate glad count * importance, pick top 10 for each region
+    print s3_result_output
     top_10_results = calculate_grid_score.tabulate_results(s3_result_output, args.min_date, args.max_date, args.analysis_type)
 
     # push to carto PTW table
@@ -41,4 +42,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

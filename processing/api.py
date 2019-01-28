@@ -75,7 +75,10 @@ def truncate_table(url, table_name):
 
 def push_results(url, table_name, result_rows):
 
-    col_names = ['emissions_sum', 'glad_count', 'grid_id', 'region', 'score']
+    col_names = ['glad_count', 'grid_id', 'region', 'score', 'iso'] #IC for state/country
+    #col_names = ['glad_count', 'grid_id', 'region', 'score']  #main soy no adm IC
+    #col_names = ['emissions_sum', 'glad_count', 'grid_id', 'region', 'score'] #IC Change back**
+    #'year', 'julian_day', 'area_ha', 'grid_id', 'glad_count'
     template_sql = 'INSERT INTO {table_name} ( {cols} ) VALUES ( {values} )'
 
     date_str = datetime.datetime.now().strftime('%m-%d-%y')
@@ -97,9 +100,11 @@ def push_results(url, table_name, result_rows):
 
 
 def validate_response(r, url):
+    #rint "validating response"
+    #print r
+    #print url
 
     if r.status_code == 200 and 'error' not in r.json().keys():
         print 'Request succeeded'
     else:
         raise ValueError('Request failed. Response: ', r.json(), '\n', url)
-
