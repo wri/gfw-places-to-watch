@@ -102,4 +102,3 @@ def validate_response(r, url):
         print 'Request succeeded'
     else:
         raise ValueError('Request failed. Response: ', r.json(), '\n', url)
-

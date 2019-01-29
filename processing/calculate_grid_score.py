@@ -69,4 +69,3 @@ def filter_by_date_range(df, min_date, max_date):
 def jd_to_date(year, julian_day):
     # source: https://stackoverflow.com/a/17216581/4355916
     return datetime.date(year, 1, 1) + datetime.timedelta(julian_day - 1)
-

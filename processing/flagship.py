@@ -36,4 +36,3 @@ def tabulate_and_pick_top10(df):
 
 def grid_id_to_region(grid_id):
     return '_'.join(grid_id.split('_')[:-1])
-
